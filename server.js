@@ -1,9 +1,11 @@
-var express = require('express');
-var handlebars = require('express-handlebars').create({defaultLayout: 'main'});
-var bodyParser = require('body-parser');
-var session = require('express-session');
+let express = require('express');
+let handlebars = require('express-handlebars').create({defaultLayout: 'main'});
+let bodyParser = require('body-parser');
+let session = require('express-session');
 
-var app = express();
+let app = express();
+app.use('/bootstrap', express.static(__dirname + '/node_modules/bootstrap/dist/'));
+app.use('/vue', express.static(__dirname + '/node_modules/vue/dist'));
 app.engine('handlebars', handlebars.engine);
 app.set('view engine', 'handlebars');
 app.set('port', 8888);
