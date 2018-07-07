@@ -1,0 +1,26 @@
+{
+  "name": "employee-awards",
+  "version": "1.0.0",
+  "description": "CS 467 Capstone",
+  "main": "index.js",
+  "dependencies": {
+    "npm": "^6.1.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pyetti/employee-awards.git"
+  },
+  "keywords": [
+    "Capstone"
+  ],
+  "author": "Peter Yetti, Andrew Chandra",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/pyetti/employee-awards/issues"
+  },
+  "homepage": "https://github.com/pyetti/employee-awards#readme"
+}
