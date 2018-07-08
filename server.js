@@ -1,15 +1,11 @@
 let express = require('express');
 let handlebars = require('express-handlebars').create({defaultLayout: 'main'});
 let bodyParser = require('body-parser');
-let session = require('express-session');
 
 let app = express();
-app.use('/bootstrap', express.static(__dirname + '/node_modules/bootstrap/dist/'));
-app.use('/vue', express.static(__dirname + '/node_modules/vue/dist'));
 app.engine('handlebars', handlebars.engine);
 app.set('view engine', 'handlebars');
 app.set('port', 8888);
-app.use(session({secret:'_qJ$_fuRZueuMrD8TCMgH6WL**h^PH'}));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(express.static('public'));
