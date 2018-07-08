@@ -1,6 +1,7 @@
 let express = require('express');
 let handlebars = require('express-handlebars').create({defaultLayout: 'main'});
 let bodyParser = require('body-parser');
+let startup = require('./modules/startup.js')
 
 let app = express();
 app.engine('handlebars', handlebars.engine);
@@ -25,6 +26,6 @@ app.use(function(err, req, res, next) {
 	res.render('500');
 });
 
-app.listen(app.get('port'), function() {
+app.listen(startup.port(process.argv), function() {
 	console.log('Express started on http://localhost:' + app.get('port') + '; press Ctrl-C to terminate');
 });
