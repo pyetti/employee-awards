@@ -1,4 +1,4 @@
-var mysql = require('mysql');
+let mysql = require('mysql');
 
 module.exports = {
 	pool: mysql.createPool({
@@ -6,6 +6,6 @@ module.exports = {
 				host  			: '35.196.130.143',
 				user  			: 'root',
 				password		: '25ptisGaAOdgBn3C',
-				database		: 'windy-smoke-209201:us-east1:employee-rewards'
+				database		: 'employee_rewards'
 			})
-}
+};

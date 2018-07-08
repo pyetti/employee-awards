@@ -1,7 +1,8 @@
 let express = require('express');
 let handlebars = require('express-handlebars').create({defaultLayout: 'main'});
 let bodyParser = require('body-parser');
-let startup = require('./modules/startup.js')
+let startup = require('./modules/startup.js');
+let dbtest = require('./modules/db_test.js');
 
 let app = express();
 app.engine('handlebars', handlebars.engine);
@@ -12,7 +13,7 @@ app.use(bodyParser.json());
 app.use(express.static('public'));
 
 app.get('/', function(req, res, next) {
-	res.render('home');
+    dbtest.testConnection(req, res, next);
 });
 
 app.use(function(req, res) {
