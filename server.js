@@ -7,7 +7,7 @@ let dbtest = require('./modules/db_test.js');
 let app = express();
 app.engine('handlebars', handlebars.engine);
 app.set('view engine', 'handlebars');
-app.set('port', 8888);
+app.set('port', startup.port(process.argv));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(express.static('public'));
@@ -27,6 +27,6 @@ app.use(function(err, req, res, next) {
 	res.render('500');
 });
 
-app.listen(startup.port(process.argv), function() {
+app.listen(app.get('port'), function() {
 	console.log('Express started on http://localhost:' + app.get('port') + '; press Ctrl-C to terminate');
 });
