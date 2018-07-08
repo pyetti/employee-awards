@@ -14,3 +14,13 @@
 # [START runtime]
 runtime: nodejs8
 # [END runtime]
+
+env_variables:
+        INSTANCE_CONNECTION_NAME: windy-smoke-209201:us-east1:employee-rewards
+        SQL_USER: root
+        SQL_PASSWORD: 25ptisGaAOdgBn3C
+        SQL_DATABASE: empoyee_rewards
+
+beta_settings:
+        cloud_sql_instance: windy-smoke-209201:us-east1:employee-rewards
+#
