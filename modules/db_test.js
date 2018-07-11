@@ -1,18 +1,16 @@
-let dbConfig = require("./dbConfig.js");
-
 module.exports = {
     testConnection: testConnection
 };
 
-function testConnection(req, res, errorHandler) {
-    let context = {};
-    let params = {};
-    dbConfig.pool.query("SELECT email FROM user", params, function (err, rows, fields) {
+let UserModel = require('./models/User.js');
+function testConnection(req, res) {
+    UserModel.find({}, function (err, data) {
         if (err) {
-            errorHandler(err);
-            return;
+            console.log(err);
+            res.stats(500).send();
+        } else {
+            console.log(data);
+            res.send(data);
         }
-        context.cities = rows;
-        res.send(context);
-    })
+    });
 }
