@@ -14,8 +14,17 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(express.static('public'));
 
-app.get('/', function(req, res) {
-    dbtest.testConnection(req, res);
+app.get('/api/users', function(req, res) {
+    dbtest.testConnection(function (err, data) {
+        if (err) {
+            console.log(err);
+            res.status(500).send();
+        } else {
+            console.log(data);
+            res.status(200);
+            res.send(data);
+        }
+    });
 });
 
 app.use(function(req, res) {
