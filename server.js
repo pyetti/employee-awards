@@ -4,6 +4,8 @@ let bodyParser = require('body-parser');
 let startup = require('./modules/startup.js');
 let dbtest = require('./modules/db_test.js');
 
+require('./modules/dbConfig.js').connect();
+
 let app = express();
 app.engine('handlebars', handlebars.engine);
 app.set('view engine', 'handlebars');
@@ -12,8 +14,8 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(express.static('public'));
 
-app.get('/', function(req, res, next) {
-    dbtest.testConnection(req, res, next);
+app.get('/', function(req, res) {
+    dbtest.testConnection(req, res);
 });
 
 app.use(function(req, res) {
