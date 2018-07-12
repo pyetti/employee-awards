@@ -8,8 +8,27 @@ app.set('port', startup.port(process.argv));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-app.get('/', function(req, res) {
-    
+const userDb = require('./modules/models/user/UserDb.js');
+
+app.get('/user', function(req, res) {
+    console.log(url);
+    userDb.getUser(req, function (err, data) {
+        if (err) console.log(err);
+        else {
+            res.status(200);
+            res.send(data);
+        }
+    });
+});
+
+app.post('/user', function (req, res) {
+    userDb.addUser(req, function (err, newUser) {
+        if (err) res.status(500).send();
+        else {
+            res.status(200);
+            res.send(newUser);
+        }
+    });
 });
 
 app.use(function(req, res) {
