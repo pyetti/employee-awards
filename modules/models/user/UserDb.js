@@ -18,12 +18,16 @@ function add(request, callBack) {
     newUser.lastName = request.body.lastName;
     newUser.email = request.body.email;
     newUser.admin = request.body.admin;
-    if (request.body.proto) {
-        callBack("", {"fail": "stop sending proto!"})
-    }
-    newUser.save(function (err) {
-        callBack(err, newUser);
-    });
+    UserModel.find({ firstName: newUser.firstName, lastName: newUser.lastName, email: newUser.email, admin: newUser.admin })
+        .then(results => {
+            if (results.length > 0) {
+                callBack(null, {"message": "User exists", status: 403})
+            } else {
+                newUser.save(function (err) {
+                    callBack(err, {"message": newUser, status: 200});
+                });
+            }
+        });
 }
 
 function deleteUser(id, callBack) {

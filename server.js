@@ -28,11 +28,12 @@ app.get('/users', function(req, res) {
 
 app.options('/users/user', cors()); // enable pre-flight request for POST request
 app.post('/users/user', cors(), function (req, res) {
-    userDb.addUser(req, function (err, newUser) {
+    userDb.addUser(req, function (err, results) {
         if (err) res.status(500).send();
         else {
-            res.status(200);
-            res.send(newUser);
+            let status = results.status ? results.status : 200;
+            res.status(status);
+            res.send(results.message);
         }
     });
 });
