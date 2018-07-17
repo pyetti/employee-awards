@@ -1,9 +1,9 @@
 let UserModel = require('./User.js');
-const queryString = require('query-string');
 
 module.exports = {
     getUser: get,
-    addUser: add
+    addUser: add,
+    deleteUser: deleteUser
 };
 
 function get(request, callBack) {
@@ -13,8 +13,19 @@ function get(request, callBack) {
 }
 
 function add(request, callBack) {
-    let newUser = new UserModel(request.body);
+    let newUser = new UserModel();
+    newUser.firstName = request.body.firstName;
+    newUser.lastName = request.body.lastName;
+    newUser.email = request.body.email;
+    newUser.admin = request.body.admin;
+    if (request.body.proto) {
+        callBack("", {"fail": "stop sending proto!"})
+    }
     newUser.save(function (err) {
         callBack(err, newUser);
     });
+}
+
+function deleteUser(id, callBack) {
+    UserModel.find({_id: id}).remove(callBack);
 }

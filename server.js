@@ -2,16 +2,21 @@ let express = require('express');
 let bodyParser = require('body-parser');
 let startup = require('./modules/startup.js');
 require('./modules/dbConfig.js').connect();
+let cors = require('cors');
 
 let app = express();
 app.set('port', startup.port(process.argv));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+});
 
 const userDb = require('./modules/models/user/UserDb.js');
 
-app.get('/user', function(req, res) {
-    console.log(url);
+app.get('/users', function(req, res) {
     userDb.getUser(req, function (err, data) {
         if (err) console.log(err);
         else {
@@ -21,7 +26,8 @@ app.get('/user', function(req, res) {
     });
 });
 
-app.post('/user', function (req, res) {
+app.options('/users/user', cors()); // enable pre-flight request for POST request
+app.post('/users/user', cors(), function (req, res) {
     userDb.addUser(req, function (err, newUser) {
         if (err) res.status(500).send();
         else {
@@ -29,6 +35,19 @@ app.post('/user', function (req, res) {
             res.send(newUser);
         }
     });
+});
+
+app.options('/users/:id', cors()); // enable pre-flight request for DELETE request
+app.delete('/users/:id', function (req, res) {
+    userDb.deleteUser(req.params.id, function (err, data) {
+        if (err) {
+            console.log(err);
+            res.status(500).send();
+        } else {
+            res.status(200);
+            res.send(data);
+        }
+    })
 });
 
 app.use(function(req, res) {
