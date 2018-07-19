@@ -5,6 +5,7 @@ require('./modules/dbConfig.js').connect();
 let cors = require('cors');
 
 let app = express();
+
 app.set('port', startup.port(process.argv));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
@@ -16,12 +17,26 @@ app.use(function(req, res, next) {
 
 const userDb = require('./modules/models/user/UserDb.js');
 
+// Load Routes
+const auth = require('./modules/auth/routes');
+app.use('/auth', auth);
+
 app.get('/users', function(req, res) {
     userDb.getUser(req, function (err, data) {
         if (err) console.log(err);
         else {
             res.status(200);
-            res.send(data);
+            let users = [];
+            data.forEach(user => {
+                users.push({
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    email: user.email,
+                    admin: user.admin,
+                    company: user.company
+                })
+            });
+            res.send(users);
         }
     });
 });
@@ -50,6 +65,7 @@ app.delete('/users/:id', function (req, res) {
         }
     })
 });
+
 
 app.use(function(req, res) {
 	res.status(404).send();
