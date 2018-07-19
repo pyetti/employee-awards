@@ -18,9 +18,9 @@ function add(request, callBack) {
     newUser.lastName = request.body.lastName;
     newUser.email = request.body.email;
     newUser.admin = request.body.admin;
-    UserModel.find({ firstName: newUser.firstName, lastName: newUser.lastName, email: newUser.email, admin: newUser.admin })
+    UserModel.findOne({ firstName: newUser.firstName, lastName: newUser.lastName, email: newUser.email, admin: newUser.admin })
         .then(results => {
-            if (results.length > 0) {
+            if (results && results.length > 0) {
                 callBack(null, {"message": "User exists", status: 403})
             } else {
                 newUser.save(function (err) {
@@ -31,5 +31,5 @@ function add(request, callBack) {
 }
 
 function deleteUser(id, callBack) {
-    UserModel.find({_id: id}).remove(callBack);
+    UserModel.findOne({_id: id}).remove(callBack);
 }
