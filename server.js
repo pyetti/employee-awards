@@ -1,32 +1,67 @@
 let express = require('express');
 let bodyParser = require('body-parser');
 let startup = require('./modules/startup.js');
-require('./modules/dbConfig.js').connect();
+
 let cors = require('cors');
+const tokenManager = require('./modules/auth/tokenManager');
+const userDb = require('./modules/models/user/UserDb.js');
 
 let app = express();
+
 app.set('port', startup.port(process.argv));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
     next();
 });
 
-const userDb = require('./modules/models/user/UserDb.js');
+// Enable cors preflights for all requests
+app.options('*', cors());
 
-app.get('/users', function(req, res) {
-    userDb.getUser(req, function (err, data) {
-        if (err) console.log(err);
-        else {
-            res.status(200);
-            res.send(data);
+// Token Auth middleware
+// If not hitting login URL, verify token using JWT
+app.use(function (req, res, next) {
+    if (req.originalUrl === '/auth/login') {
+        next();
+        return;
+    }
+    tokenManager.verifyToken(req.headers, (err, authData) => {
+        if (err || authData.length === 0) {
+            res.sendStatus(403);
+        } else {
+            req.authData = authData;
+            next();
         }
     });
 });
 
-app.options('/users/user', cors()); // enable pre-flight request for POST request
+// Load auth Routes
+const auth = require('./modules/auth/routes');
+app.use('/auth', auth);
+
+app.get('/users', function(req, res) {
+    userDb.getUser(req.query, function (err, data) {
+        if (err) console.log(err);
+        else {
+            res.status(200);
+            let users = [];
+            data.forEach(user => {
+                users.push({
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    email: user.email,
+                    admin: user.admin,
+                    company: user.company
+                })
+            });
+            res.send(users);
+        }
+    });
+});
+
+
 app.post('/users/user', cors(), function (req, res) {
     userDb.addUser(req, function (err, results) {
         if (err) res.status(500).send();
@@ -38,7 +73,6 @@ app.post('/users/user', cors(), function (req, res) {
     });
 });
 
-app.options('/users/:id', cors()); // enable pre-flight request for DELETE request
 app.delete('/users/:id', function (req, res) {
     userDb.deleteUser(req.params.id, function (err, data) {
         if (err) {
@@ -51,6 +85,7 @@ app.delete('/users/:id', function (req, res) {
     })
 });
 
+
 app.use(function(req, res) {
 	res.status(404).send();
 });
@@ -60,6 +95,7 @@ app.use(function(err, req, res, next) {
 	res.status(500).send();
 });
 
+require('./modules/dbConfig.js').connect();
 app.listen(app.get('port'), function() {
 	console.log('Express started on http://localhost:' + app.get('port') + '; press Ctrl-C to terminate');
 });
