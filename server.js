@@ -1,8 +1,10 @@
 let express = require('express');
 let bodyParser = require('body-parser');
 let startup = require('./modules/startup.js');
-require('./modules/dbConfig.js').connect();
+
 let cors = require('cors');
+const tokenManager = require('./modules/auth/tokenManager');
+const userDb = require('./modules/models/user/UserDb.js');
 
 let app = express();
 
@@ -15,14 +17,27 @@ app.use(function(req, res, next) {
     next();
 });
 
-const userDb = require('./modules/models/user/UserDb.js');
+app.use(function (req, res, next) {
+    if (req.originalUrl === '/auth/login') {
+        next();
+        return;
+    }
+    tokenManager.verifyToken(req.headers, (err, authData) => {
+        if (err || authData.length === 0) {
+            res.sendStatus(403);
+        } else {
+            req.authData = authData;
+            next();
+        }
+    });
+});
 
-// Load Routes
+// Load auth Routes
 const auth = require('./modules/auth/routes');
 app.use('/auth', auth);
 
 app.get('/users', function(req, res) {
-    userDb.getUser(req, function (err, data) {
+    userDb.getUser(req.query, function (err, data) {
         if (err) console.log(err);
         else {
             res.status(200);
@@ -76,6 +91,7 @@ app.use(function(err, req, res, next) {
 	res.status(500).send();
 });
 
+require('./modules/dbConfig.js').connect();
 app.listen(app.get('port'), function() {
 	console.log('Express started on http://localhost:' + app.get('port') + '; press Ctrl-C to terminate');
 });

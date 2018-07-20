@@ -6,9 +6,9 @@ module.exports = {
     deleteUser: deleteUser
 };
 
-function get(request, callBack) {
-    UserModel.find(request.query, function (err, data) {
-        callBack(err, data);
+function get(query, callBack) {
+    UserModel.find(query, function (err, users) {
+        callBack(err, users);
     });
 }
 
