@@ -13,10 +13,15 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
     next();
 });
 
+// Enable cors preflights for all requests
+app.options('*', cors());
+
+// Token Auth middleware
+// If not hitting login URL, verify token using JWT
 app.use(function (req, res, next) {
     if (req.originalUrl === '/auth/login') {
         next();
@@ -56,7 +61,7 @@ app.get('/users', function(req, res) {
     });
 });
 
-app.options('/users/user', cors()); // enable pre-flight request for POST request
+
 app.post('/users/user', cors(), function (req, res) {
     userDb.addUser(req, function (err, results) {
         if (err) res.status(500).send();
@@ -68,7 +73,6 @@ app.post('/users/user', cors(), function (req, res) {
     });
 });
 
-app.options('/users/:id', cors()); // enable pre-flight request for DELETE request
 app.delete('/users/:id', function (req, res) {
     userDb.deleteUser(req.params.id, function (err, data) {
         if (err) {
