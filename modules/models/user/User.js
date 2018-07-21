@@ -20,10 +20,6 @@ let userSchema = new mongoose.Schema({
     password: {
         type: String,
         required: true
-    },
-    company: {
-        type: String,
-        required: true
     }
 });
 

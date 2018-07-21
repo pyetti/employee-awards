@@ -18,13 +18,19 @@ function add(request, callBack) {
     newUser.lastName = request.body.lastName;
     newUser.email = request.body.email;
     newUser.admin = request.body.admin;
-    UserModel.findOne({ firstName: newUser.firstName, lastName: newUser.lastName, email: newUser.email, admin: newUser.admin })
+    newUser.company = request.body.company;
+    newUser.password = "password";
+    UserModel.findOne({ email: newUser.email, admin: newUser.admin })
         .then(results => {
-            if (results && results.length > 0) {
-                callBack(null, {"message": "User exists", status: 403})
+            if (results && !results.isNew) {
+                callBack(null, {"message": "User already exists", status: 403})
             } else {
                 newUser.save(function (err) {
-                    callBack(err, {"message": newUser, status: 200});
+                    if (err) {
+                        callBack(err, {"message": "Failed to create new user", status: 500});
+                    } else {
+                        callBack(err, {"message": newUser, status: 200});
+                    }
                 });
             }
         });

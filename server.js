@@ -43,8 +43,12 @@ app.use('/auth', auth);
 
 app.get('/users', function(req, res) {
     userDb.getUser(req.query, function (err, data) {
-        if (err) console.log(err);
-        else {
+        if (err) {
+            console.log(err);
+            let status = data.status ? data.status : 500;
+            res.status(status);
+            res.json(data);
+        } else {
             res.status(200);
             let users = [];
             data.forEach(user => {
@@ -53,7 +57,8 @@ app.get('/users', function(req, res) {
                     lastName: user.lastName,
                     email: user.email,
                     admin: user.admin,
-                    company: user.company
+                    company: user.company,
+                    _id: user._id
                 })
             });
             res.send(users);
@@ -61,14 +66,17 @@ app.get('/users', function(req, res) {
     });
 });
 
-
 app.post('/users/user', cors(), function (req, res) {
-    userDb.addUser(req, function (err, results) {
-        if (err) res.status(500).send();
-        else {
-            let status = results.status ? results.status : 200;
+    userDb.addUser(req, function (err, data) {
+        if (err) {
+            console.log(err);
+            let status = data.status ? data.status : 500;
             res.status(status);
-            res.send(results.message);
+            res.json(data.message);
+        } else {
+            let status = data.status ? data.status : 200;
+            res.status(status);
+            res.send(data.message);
         }
     });
 });
@@ -77,10 +85,13 @@ app.delete('/users/:id', function (req, res) {
     userDb.deleteUser(req.params.id, function (err, data) {
         if (err) {
             console.log(err);
-            res.status(500).send();
+            let status = data.status ? data.status : 500;
+            res.status(status);
+            res.json(data);
         } else {
-            res.status(200);
-            res.send(data);
+            let status = data.status ? data.status : 200;
+            res.status(status);
+            res.json(data);
         }
     })
 });
