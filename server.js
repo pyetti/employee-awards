@@ -29,6 +29,7 @@ app.use(function (req, res, next) {
     }
     tokenManager.verifyToken(req.headers, (err, authData) => {
         if (err || authData.length === 0) {
+            console.log(err);
             res.sendStatus(403);
         } else {
             req.authData = authData;
