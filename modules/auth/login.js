@@ -9,7 +9,15 @@ function login(req, callBack) {
     userDb.getUser(req.body, (err, user) => {
         if (user && user.length === 1) {
             tokenVerifier.generateToken(user, (err, token) => {
-                callBack(err, token);
+                const userDoc = user[0]._doc;
+                const authenticatedUser = {
+                    firstName: userDoc.firstName,
+                    lastName: userDoc.lastName,
+                    email: userDoc.email,
+                    company: userDoc.company,
+                    admin: userDoc.admin
+                };
+                callBack(err, {user: authenticatedUser, token: token});
             });
         } else {
             callBack(err, "");
