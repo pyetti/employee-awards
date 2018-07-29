@@ -4,6 +4,7 @@ const moment = require('moment');
 module.exports = {
     getUser: get,
     addUser: add,
+    updateUser: update,
     deleteUser: deleteUser
 };
 
@@ -25,7 +26,7 @@ function add(request, callBack) {
     newUser.password = Math.random().toString(36).substring(2, 12);
     newUser.created_on = moment().format('YYYY-MM-DD hh:mm:ss');
 
-    uModel.findOne({ email: newUser.email, admin: newUser.admin })
+    uModel.findOne({ email: newUser.email })
         .then(results => {
             if (results && !results.isNew) {
                 callBack(null, {"message": "User already exists", status: 403})
@@ -40,6 +41,19 @@ function add(request, callBack) {
                 });
             }
         });
+}
+
+function update(user, callBack) {
+    const uModel = UserModel['users' + process.env.ENVIRONMENT];
+    uModel.findOneAndUpdate({email: user.email}, user, {new: true}, function(err, updatedUser) {
+        if (err) {
+            callBack(err, {status: 500, user: user});
+        } else if (!updatedUser) {
+            callBack(null, {status: 404, user: user});
+        } else {
+            callBack(null, {status: 200, user: updatedUser});
+        }
+    });
 }
 
 function deleteUser(id, callBack) {

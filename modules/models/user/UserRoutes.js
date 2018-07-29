@@ -73,6 +73,21 @@ router.post('/user', function (req, res) {
     });
 });
 
+router.patch('/:id', function (req, res) {
+    userDb.updateUser(req.body, function (err, result) {
+        if (err) {
+            console.log(err);
+            let status = data.status ? data.status : 500;
+            res.status(status);
+            res.json(data);
+        } else {
+            let status = result.status ? result.status : 200;
+            res.status(status);
+            res.json({user: result.user});
+        }
+    });
+});
+
 router.delete('/:id', function (req, res) {
     userDb.deleteUser(req.params.id, function (err, data) {
         if (err) {

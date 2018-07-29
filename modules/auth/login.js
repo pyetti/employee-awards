@@ -15,7 +15,9 @@ function login(req, callBack) {
                     lastName: userDoc.lastName,
                     email: userDoc.email,
                     company: userDoc.company,
-                    admin: userDoc.admin
+                    admin: userDoc.admin,
+                    created_on: userDoc.created_on,
+                    _id: userDoc._id
                 };
                 callBack(err, {user: authenticatedUser, token: token});
             });
