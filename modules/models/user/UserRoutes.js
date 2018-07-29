@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const userDb = require('./UserDb');
 const mailer = require('../../mail/mailer');
+const os = require("os");
+
 
 module.exports = router;
 
@@ -15,6 +17,7 @@ router.get('/', function(req, res) {
         } else {
             res.status(200);
             let users = [];
+            const baseUrl = req.protocol + '://' + req.get('host') + req.originalUrl + '/';
             data.forEach(user => {
                 users.push({
                     firstName: user.firstName,
@@ -23,7 +26,8 @@ router.get('/', function(req, res) {
                     admin: user.admin,
                     company: user.company,
                     created_on: user.created_on,
-                    _id: user._id
+                    _id: user._id,
+                    self: baseUrl + user._id
                 })
             });
             res.send(users);
