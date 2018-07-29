@@ -13,6 +13,7 @@ module.exports = {
 };
 
 function sendPasswordRecoveryEmail(userEmail, userPassword, callBack) {
+    let html = mailHtml.passwordRecoveryEmail(userPassword);
     const sgReq = Sendgrid.emptyRequest({
         method: 'POST',
         path: '/v3/mail/send',
@@ -23,8 +24,8 @@ function sendPasswordRecoveryEmail(userEmail, userPassword, callBack) {
             }],
             from: {email: SENDGRID_SENDER},
             content: [{
-                type: 'text/plain',
-                value: `Your password is ${userPassword}.`
+                type: 'text/html',
+                value: html
             }]
         }
     });
