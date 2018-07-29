@@ -22,6 +22,7 @@ router.get('/', function(req, res) {
                     email: user.email,
                     admin: user.admin,
                     company: user.company,
+                    created_on: user.created_on,
                     _id: user._id
                 })
             });
@@ -62,8 +63,10 @@ router.post('/user', function (req, res) {
             res.status(status);
             res.json(data.message);
         } else {
-            mailer.sendNewUserEmail(data.user);
             let status = data.status ? data.status : 200;
+            if (status === 200) {
+                mailer.sendNewUserEmail(data.user);
+            }
             res.status(status);
             res.send(data.message);
         }

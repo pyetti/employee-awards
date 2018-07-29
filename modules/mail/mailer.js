@@ -13,7 +13,7 @@ module.exports = {
 };
 
 function sendPasswordRecoveryEmail(userEmail, userPassword, callBack) {
-    let html = mailHtml.passwordRecoveryEmail(userPassword);
+    const html = mailHtml.passwordRecoveryEmail(userPassword);
     const sgReq = Sendgrid.emptyRequest({
         method: 'POST',
         path: '/v3/mail/send',
@@ -36,19 +36,28 @@ function sendPasswordRecoveryEmail(userEmail, userPassword, callBack) {
 }
 
 function sendNewUserEmail(user) {
-    let email = new Sendgrid.Email();
-    email.addTo(user.email);
-    email.setFrom(SENDGRID_SENDER);
-    email.setSubject("Welcome to Employee Awards!");
-
     let html = mailHtml.newUserHtml(user.password);
-    email.setHtml(html);
+    const sgReq = Sendgrid.emptyRequest({
+        method: 'POST',
+        path: '/v3/mail/send',
+        body: {
+            personalizations: [{
+                to: [{email: user.email}],
+                subject: 'Account Created'
+            }],
+            from: {email: SENDGRID_SENDER},
+            content: [{
+                type: 'text/html',
+                value: html
+            }]
+        }
+    });
 
-    Sendgrid.send(email, (err, result) => {
+    Sendgrid.API(sgReq, (err) => {
         if (err) {
-            console.log("New user email sent to " + user.email, result);
+            console.log("Failed to send new user email to " + user.email, err);
         } else {
-            console.log("Failed to send new user email to " + user.email, result);
+            console.log("New user email sent to " + user.email);
         }
     });
 }

@@ -1,4 +1,5 @@
 let UserModel = require('./User.js');
+const moment = require('moment');
 
 module.exports = {
     getUser: get,
@@ -14,16 +15,16 @@ function get(query, callBack) {
 }
 
 function add(request, callBack) {
-    let newUser = new UserModel();
+    const uModel = UserModel['users' + process.env.ENVIRONMENT];
+    let newUser = new uModel();
     newUser.firstName = request.body.firstName;
     newUser.lastName = request.body.lastName;
     newUser.email = request.body.email;
     newUser.admin = request.body.admin;
     newUser.company = request.body.company;
-    newUser.password = console.log(Math.random().toString(36).substring(2, 12));
-    newUser.created_on = new Date();
+    newUser.password = Math.random().toString(36).substring(2, 12);
+    newUser.created_on = moment().format('YYYY-MM-DD hh:mm:ss');
 
-    const uModel = UserModel['users' + process.env.ENVIRONMENT];
     uModel.findOne({ email: newUser.email, admin: newUser.admin })
         .then(results => {
             if (results && !results.isNew) {
@@ -33,7 +34,8 @@ function add(request, callBack) {
                     if (err) {
                         callBack(err, {"message": "Failed to create new user", status: 500});
                     } else {
-                        callBack(err, {"message": "User created. Email being sent to " + newUser.email, status: 200});
+                        callBack(err, {"message": "User created. Email being sent to " + newUser.email, user: newUser,
+                            status: 200});
                     }
                 });
             }
