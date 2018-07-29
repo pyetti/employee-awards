@@ -33,7 +33,7 @@ function add(request, callBack) {
                     if (err) {
                         callBack(err, {"message": "Failed to create new user", status: 500});
                     } else {
-                        callBack(err, {"message": newUser, status: 200});
+                        callBack(err, {"message": "User created. Email being sent to " + newUser.email, status: 200});
                     }
                 });
             }

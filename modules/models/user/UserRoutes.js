@@ -62,6 +62,7 @@ router.post('/user', function (req, res) {
             res.status(status);
             res.json(data.message);
         } else {
+            mailer.sendNewUserEmail(data.user);
             let status = data.status ? data.status : 200;
             res.status(status);
             res.send(data.message);
