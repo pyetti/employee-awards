@@ -20,8 +20,16 @@ let userSchema = new mongoose.Schema({
     password: {
         type: String,
         required: true
+    },
+    created_on: {
+        type: Date,
+        required: true
     }
 });
 
-module.exports = mongoose.model('user', userSchema, 'user');
+module.exports = {
+    users_prod: mongoose.model('user', userSchema, 'user'),
+    users_dev: mongoose.model('users_dev', userSchema, 'users_dev')
+}
+
 
