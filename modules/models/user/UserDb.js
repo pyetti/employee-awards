@@ -63,8 +63,9 @@ function update(user, callBack) {
                 _update(user, callBack);
             }
         })
+    } else {
+        _update(user, callBack);
     }
-    _update(user, callBack);
 }
 
 function _update(user, callBack) {
