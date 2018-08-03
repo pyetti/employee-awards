@@ -2,8 +2,8 @@ const express = require('express');
 const router = express.Router();
 const userDb = require('./UserDb');
 const mailer = require('../../mail/mailer');
-const os = require("os");
-
+const tokenGenerator = require('../../auth/tokenManager');
+const crypto = require('../../crypto/crypto');
 
 module.exports = router;
 
@@ -36,26 +36,50 @@ router.get('/', function(req, res) {
 });
 
 router.post('/password', function (req, res) {
-    userDb.getUser(req.body, function (err, data) {
+    const user = {
+        email: crypto.decrypt(req.body.email),
+        password: req.body.password
+    };
+    userDb.updateUser(user, (err, data) => {
         if (err) {
-            console.log(err);
-            let status = data.status ? data.status : 500;
-            res.sendStatus(status);
+            const status = data.status ? data.status : 500;
+            res.status(status);
+            res.json({data});
+            return;
+        }
+        const status = data.status ? data.status : 200;
+        res.status(status);
+        if (status === 200) {
+            res.json({data: data.user});
         } else {
-            const user = data[0];
-            if (user) {
-                mailer.sendPasswordRecoveryEmail(user.email, user.password, (err) => {
-                    if (err) {
-                        res.status(500);
-                        res.json({ message: 'Failed to send email.'});
-                    } else {
-                        res.status(200);
-                        res.json({ message: 'If the email exists, a message will be sent.'});
-                    }
+            res.json({data: data.message});
+        }
+    });
+});
+
+router.get('/password/:email', function (req, res) {
+    const object = {key: Math.random().toString(36).substring(2, 12)};
+    tokenGenerator.generateToken(object, (err, token) => {
+        if (err) {
+            res.status(500);
+            res.json({
+                errorMessage: "Please try again"
+            });
+            return;
+        }
+        const encryptedEmail = crypto.encrypt(req.params.email);
+        mailer.sendPasswordRecoveryEmail(req.params.email, encryptedEmail, token, (err) => {
+            if (err) {
+                res.status(500);
+                res.json({ message: 'Failed to send email.'});
+            } else {
+                res.status(200);
+                res.json({
+                    message: 'If the email exists, a message will be sent.',
+                    token
                 });
             }
-
-        }
+        });
     });
 });
 

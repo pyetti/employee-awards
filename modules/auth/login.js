@@ -1,6 +1,6 @@
 const userDb = require('../../modules/models/user/UserDb');
 const tokenVerifier = require('./tokenManager');
-const bcrypter = require('./bcrypter');
+const bcrypter = require('../crypto/bcrypter');
 
 module.exports = {
     login

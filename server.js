@@ -1,14 +1,11 @@
 let express = require('express');
 let bodyParser = require('body-parser');
 let startup = require('./modules/startup.js');
-
 let cors = require('cors');
 const tokenManager = require('./modules/auth/tokenManager');
 
 let app = express();
-
 app.set('port', startup.port(process.argv));
-
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
@@ -24,10 +21,16 @@ app.options('*', cors());
 // Token Auth middleware
 // If not hitting login URL, verify token using JWT
 app.use(function (req, res, next) {
-    if (req.originalUrl === '/auth/login' || req.originalUrl === '/users/password') {
+    if (req.originalUrl === '/auth/login') {
         next();
         return;
     }
+
+    if (req.originalUrl.includes('/users/password') && req.method.toLowerCase() === 'get') {
+        next();
+        return;
+    }
+
     tokenManager.verifyToken(req.headers, (err, authData) => {
         if (err || authData.length === 0) {
             console.log(err);

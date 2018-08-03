@@ -1,6 +1,6 @@
 let UserModel = require('./User.js');
 const moment = require('moment');
-const bcrypter = require('../../auth/bcrypter');
+const bcrypter = require('../../crypto/bcrypter');
 
 module.exports = {
     getUser: get,
@@ -16,7 +16,7 @@ function get(query, callBack) {
     });
 }
 
-async function add(request, callBack) {
+function add(request, callBack) {
     const password = Math.random().toString(36).substring(2, 12);
     bcrypter.hash(password, (err, hash) => {
         if (err) {
@@ -57,7 +57,7 @@ function update(user, callBack) {
     if (user.password) {
         bcrypter.hash(user.password, (err, hash) => {
             if (err) {
-                callBack(err, {status: 500, user: user})
+                callBack(err, {status: 500, message: "Failed to update user"})
             } else {
                 user.password = hash;
                 _update(user, callBack);
@@ -72,10 +72,11 @@ function _update(user, callBack) {
     const uModel = UserModel['users' + process.env.ENVIRONMENT];
     uModel.findOneAndUpdate({email: user.email}, user, {new: true}, function (err, updatedUser) {
         if (err) {
-            callBack(err, {status: 500, user: user});
+            callBack(err, {status: 500, message: "Failed to update user"});
         } else if (!updatedUser) {
-            callBack(null, {status: 404, user: user});
+            callBack(null, {status: 404, message: "User not found"});
         } else {
+            delete updatedUser.password;
             callBack(null, {status: 200, user: updatedUser});
         }
     });
