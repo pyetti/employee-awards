@@ -3,7 +3,9 @@ const router = express.Router();
 const userDb = require('./UserDb');
 const mailer = require('../../mail/mailer');
 const os = require("os");
-
+var fs = require('fs');
+//var util = require('util');
+var exec = require('child_process').exec;
 
 module.exports = router;
 
@@ -105,4 +107,56 @@ router.delete('/:id', function (req, res) {
             res.json(data);
         }
     })
+});
+
+
+router.post('/latex', function (req, res) {
+    res.send('received a POST')
+
+    var firstName = req.body.firstName;
+    var lastName = req.body.lastName;
+    var email = req.body.email;
+    var awardType = req.body.awardType;
+    var awardCreator = req.body.awardCreator;
+    var datetime12 = req.body.datetime12;
+
+    var fileContent = 
+
+        `
+            \\documentclass{article}
+            \\title{Cartesian closed categories and the price of eggs}
+            \\author{Jane Doe}
+            \\date{September 1994}
+            \\begin{document}
+            \\maketitle
+        `
+        +
+
+        `\\noindent First Name: ` +firstName+
+        `\\newline Last Name: ` +lastName+ 
+        `\\newline Email: ` +email+ 
+        `\\newline Award Type: ` +awardType+ 
+        `\\newline Award Creator: ` +awardCreator+ 
+        `\\newline Date and Time: ` +datetime12+
+ 
+        `
+            \\end{document}
+
+        `
+
+
+    var filePath = "form.tex"
+
+    fs.writeFile(filePath, fileContent, (err) => {
+        if (err) throw err;
+        console.log("The file was successfully created.");''
+    })
+
+    exec('pdflatex form.tex', function(error, stdout, stderr) {
+        if (error) {
+        console.log(error.code);
+        }
+    });
+
+
 });

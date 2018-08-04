@@ -7,7 +7,7 @@ const tokenManager = require('./modules/auth/tokenManager');
 
 let app = express();
 
-app.set('port', startup.port(process.argv));
+app.set('port', 8888);
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
