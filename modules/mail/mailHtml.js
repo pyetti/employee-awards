@@ -5,11 +5,13 @@ module.exports = {
     newUserHtml
 };
 
-function passwordRecoveryEmail(userPassword) {
+function passwordRecoveryEmail(encryptedEmail, token) {
     return `
       <div>
-        <h3>Your password is ${userPassword}</h3>
-        <a href="https://employee-rewards-front-end.appspot.com/">Login</a>
+        <p>Click the button below to update your password. The link is only available to 24 hours and can be used only once.</p>
+        <br>
+        <a style="padding: 10px; background-color: #b56969; border: none; border-radius: 5px; margin: 10px; color: #e8edf3; text-decoration: none;"
+         href="http://localhost:8081/updatePassword?e=${encryptedEmail}&t=${token}">Update Password</a>
       </div>
     `;
 }

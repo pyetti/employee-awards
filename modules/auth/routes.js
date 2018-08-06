@@ -7,19 +7,16 @@ module.exports = router;
 router.post('/login', (request, response) => {
     login.login(request, (err, results) => {
         if (err || !results.token || results.token.length === 0) {
-            response.status(403);
+            response.status(500);
             response.json({
                 message: "Invalid credentials"
             })
         } else {
-            response.status(200);
+            let status = results.status ? results.status : 200;
+            response.status(status);
             response.json({
                 results
             });
         }
     });
-});
-
-router.get('/logout', (request, response) => {
-    response.send("LOGGED OUT");
 });

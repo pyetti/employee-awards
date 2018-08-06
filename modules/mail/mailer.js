@@ -12,8 +12,8 @@ module.exports = {
     sendAward
 };
 
-function sendPasswordRecoveryEmail(userEmail, userPassword, callBack) {
-    const html = mailHtml.passwordRecoveryEmail(userPassword);
+function sendPasswordRecoveryEmail(userEmail, encryptedEmail, token, callBack) {
+    const html = mailHtml.passwordRecoveryEmail(encryptedEmail, token);
     const sgReq = Sendgrid.emptyRequest({
         method: 'POST',
         path: '/v3/mail/send',
