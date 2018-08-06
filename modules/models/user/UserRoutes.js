@@ -4,9 +4,7 @@ const userDb = require('./UserDb');
 const mailer = require('../../mail/mailer');
 const tokenGenerator = require('../../auth/tokenManager');
 const crypto = require('../../crypto/crypto');
-const os = require("os");
 var fs = require('fs');
-//var util = require('util');
 var exec = require('child_process').exec;
 
 module.exports = router;
