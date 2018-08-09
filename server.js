@@ -62,5 +62,5 @@ app.use(function(err, req, res, next) {
 require('./modules/dbConfig.js').connect();
 app.listen(app.get('port'), function() {
     startup.env(process.argv)
-	console.log('Express started on http://localhost:' + app.get('port') + '; press Ctrl-C to terminate');
+	console.log('Express started on port ' + app.get('port'));
 });
