@@ -1,6 +1,9 @@
 let UserModel = require('./User.js');
 const moment = require('moment');
 const bcrypter = require('../../crypto/bcrypter');
+const PImage = require('pureimage');
+const arty = require('../../../art_signature/arty');
+const fs = require('fs');
 
 module.exports = {
     getUser: get,
@@ -28,10 +31,24 @@ function add(request, callBack) {
         newUser.firstName = request.body.firstName;
         newUser.lastName = request.body.lastName;
         newUser.email = request.body.email;
-        newUser.admin = request.body.admin;
+        newUser.admin = request.body.admin !== '' ? request.body.admin : false;
         newUser.company = request.body.company;
         newUser.password = hash;
         newUser.created_on = moment().format('YYYY-MM-DD hh:mm:ss');
+
+        const fnt = PImage.registerFont(arty.file_location, 'Arty Signature');
+        fnt.load(() => {
+            const signatureImage = PImage.make(200, 200);
+            const ctx = signatureImage.getContext();
+            ctx.fillStyle = '#000000';
+            ctx.font = "64pt 'Arty Signature'";
+            ctx.fillText(newUser.firstName + ' ' + newUser.lastName, 80, 80);
+            PImage.encodePNGToStream(signatureImage, fs.createWriteStream('signature.png')).then(() => {
+                console.log("wrote out the png file to signature.png");
+            }).catch((err)=>{
+                console.log("there was an error writing", err);
+            });
+        });
 
         uModel.findOne({ email: newUser.email })
             .then(results => {

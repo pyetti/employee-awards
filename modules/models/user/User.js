@@ -28,6 +28,10 @@ let userSchema = new mongoose.Schema({
     created_on: {
         type: Date,
         required: true
+    },
+    signature_image: {
+        data: Buffer, contentType: String ,
+        required: false
     }
 });
 
