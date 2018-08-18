@@ -28,12 +28,15 @@ let userSchema = new mongoose.Schema({
     created_on: {
         type: Date,
         required: true
+    },
+    signature_image: {
+        type: String,
+        required: true
     }
 });
 
 module.exports = {
     users_prod: mongoose.model('user', userSchema, 'user'),
     users_dev: mongoose.model('users_dev', userSchema, 'users_dev')
-}
-
+};
 

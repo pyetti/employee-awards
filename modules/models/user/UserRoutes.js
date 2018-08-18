@@ -4,8 +4,7 @@ const userDb = require('./UserDb');
 const mailer = require('../../mail/mailer');
 const tokenGenerator = require('../../auth/tokenManager');
 const crypto = require('../../crypto/crypto');
-var fs = require('fs');
-var exec = require('child_process').exec;
+const fs = require('fs');
 
 module.exports = router;
 
@@ -29,7 +28,37 @@ router.get('/', function(req, res) {
                     company: user.company,
                     created_on: user.created_on,
                     _id: user._id,
-                    self: baseUrl + user._id
+                    self: baseUrl + user._id,
+                    signature_image: ''
+                })
+            });
+            res.send(users);
+        }
+    });
+});
+
+router.get('/:userId', function(req, res) {
+    userDb.getUser({_id: req.params.userId}, function (err, data) {
+        if (err) {
+            console.log(err);
+            let status = data.status ? data.status : 500;
+            res.status(status);
+            res.json(data);
+        } else {
+            res.status(200);
+            let users = [];
+            const baseUrl = req.protocol + '://' + req.get('host') + req.originalUrl + '/';
+            data.forEach(user => {
+                users.push({
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    email: user.email,
+                    admin: user.admin,
+                    company: user.company,
+                    created_on: user.created_on,
+                    _id: user._id,
+                    self: baseUrl + user._id,
+                    signature_image: bson.deserialize(user.signature_image.data, {})
                 })
             });
             res.send(users);
@@ -59,6 +88,24 @@ router.post('/password', function (req, res) {
     });
 });
 
+router.post('/user', function (req, res) {
+    userDb.addUser(req, function (err, data) {
+        if (err) {
+            console.log(err);
+            let status = data.status ? data.status : 500;
+            res.status(status);
+            res.json(data.message);
+        } else {
+            let status = data.status ? data.status : 200;
+            if (status === 200) {
+                mailer.sendNewUserEmail(data.user);
+            }
+            res.status(status);
+            res.send(data.message);
+        }
+    });
+});
+
 router.get('/password/:email', function (req, res) {
     const object = {key: Math.random().toString(36).substring(2, 12)};
     tokenGenerator.generateToken(object, (err, token) => {
@@ -82,24 +129,6 @@ router.get('/password/:email', function (req, res) {
                 });
             }
         });
-    });
-});
-
-router.post('/user', function (req, res) {
-    userDb.addUser(req, function (err, data) {
-        if (err) {
-            console.log(err);
-            let status = data.status ? data.status : 500;
-            res.status(status);
-            res.json(data.message);
-        } else {
-            let status = data.status ? data.status : 200;
-            if (status === 200) {
-                mailer.sendNewUserEmail(data.user);
-            }
-            res.status(status);
-            res.send(data.message);
-        }
     });
 });
 
@@ -132,7 +161,6 @@ router.delete('/:id', function (req, res) {
         }
     })
 });
-
 
 router.post('/latex', function (req, res) {
     res.send('received a POST')

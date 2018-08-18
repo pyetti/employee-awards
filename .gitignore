@@ -65,3 +65,5 @@ typings/
 app.yaml
 modules/dbConfig.js
 diffs.txt
+form.tex
+*.png
