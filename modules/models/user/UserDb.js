@@ -27,12 +27,14 @@ function add(request, callBack) {
                 callBack(err, {"message": "Failed to create new user", status: 500});
                 return;
             }
-            image.multer.single('image');
             request.file = files.signature_image;
-            image.sendUploadToGCS(request);
+            if (request.file) {
+                image.multer.single('image');
+                image.sendUploadToGCS(request);
 
-            if (request.file.cloudStorageError) {
-                console.log("Failed ot upload image file");
+                if (request.file.cloudStorageError) {
+                    console.log("Failed ot upload image file");
+                }
             }
 
             const uModel = UserModel['users' + process.env.ENVIRONMENT];
