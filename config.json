@@ -1,0 +1,5 @@
+{
+  "GCLOUD_PROJECT": "windy-smoke-209201",
+  "DATA_BACKEND": "datastore",
+  "CLOUD_BUCKET": "signature_images"
+}

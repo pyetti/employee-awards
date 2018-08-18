@@ -6,7 +6,7 @@ const tokenManager = require('./modules/auth/tokenManager');
 
 let app = express();
 app.set('port', startup.port(process.argv));
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 app.use(function(req, res, next) {
@@ -21,7 +21,7 @@ app.options('*', cors());
 // Token Auth middleware
 // If not hitting login URL, verify token using JWT
 app.use(function (req, res, next) {
-    if (req.originalUrl === '/auth/login') {
+    if (req.originalUrl === '/auth/login' || req.originalUrl.includes('/users')) {
         next();
         return;
     }

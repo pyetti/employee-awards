@@ -1,9 +1,8 @@
 let UserModel = require('./User.js');
 const moment = require('moment');
 const bcrypter = require('../../crypto/bcrypter');
-const PImage = require('pureimage');
-const arty = require('../../../art_signature/arty');
-const fs = require('fs');
+const formidable = require('formidable');
+const image = require('./image');
 
 module.exports = {
     getUser: get,
@@ -20,53 +19,54 @@ function get(query, callBack) {
 }
 
 function add(request, callBack) {
-    const password = Math.random().toString(36).substring(2, 12);
-    bcrypter.hash(password, (err, hash) => {
-        if (err) {
-            callBack(err, {"message": "Failed to create new user", status: 500});
-            return;
-        }
-        const uModel = UserModel['users' + process.env.ENVIRONMENT];
-        let newUser = new uModel();
-        newUser.firstName = request.body.firstName;
-        newUser.lastName = request.body.lastName;
-        newUser.email = request.body.email;
-        newUser.admin = request.body.admin !== '' ? request.body.admin : false;
-        newUser.company = request.body.company;
-        newUser.password = hash;
-        newUser.created_on = moment().format('YYYY-MM-DD hh:mm:ss');
+    const form = new formidable.IncomingForm();
+    form.parse(request, function (err, fields, files) {
+        const password = Math.random().toString(36).substring(2, 12);
+        bcrypter.hash(password, (err, hash) => {
+            if (err) {
+                callBack(err, {"message": "Failed to create new user", status: 500});
+                return;
+            }
+            image.multer.single('image');
+            request.file = files.signature_image;
+            image.sendUploadToGCS(request);
 
-        const fnt = PImage.registerFont(arty.file_location, 'Arty Signature');
-        fnt.load(() => {
-            const signatureImage = PImage.make(200, 200);
-            const ctx = signatureImage.getContext();
-            ctx.fillStyle = '#000000';
-            ctx.font = "64pt 'Arty Signature'";
-            ctx.fillText(newUser.firstName + ' ' + newUser.lastName, 80, 80);
-            PImage.encodePNGToStream(signatureImage, fs.createWriteStream('signature.png')).then(() => {
-                console.log("wrote out the png file to signature.png");
-            }).catch((err)=>{
-                console.log("there was an error writing", err);
-            });
+            if (request.file.cloudStorageError) {
+                console.log("Failed ot upload image file");
+            }
+
+            const uModel = UserModel['users' + process.env.ENVIRONMENT];
+            let newUser = new uModel();
+            newUser.firstName = fields.firstName;
+            newUser.lastName = fields.lastName;
+            newUser.email = fields.email;
+            newUser.admin = fields.admin !== '' ? fields.admin : false;
+            newUser.company = fields.company;
+            newUser.password = hash;
+            newUser.created_on = moment().format('YYYY-MM-DD hh:mm:ss');
+            newUser.signature_image = image.getPublicUrl();
+
+            uModel.findOne({email: newUser.email})
+                .then(results => {
+                    if (results && !results.isNew) {
+                        callBack(null, {"message": "User already exists", status: 403})
+                    } else {
+                        // https://medium.com/@alvenw/how-to-store-images-to-mongodb-with-node-js-fb3905c37e6d
+                        newUser.save(function (err) {
+                            if (err) {
+                                callBack(err, {"message": "Failed to create new user", status: 500});
+                            } else {
+                                newUser.password = password;
+                                callBack(err, {
+                                    "message": "User created. Email being sent to " + newUser.email, user: newUser,
+                                    status: 200
+                                });
+                            }
+                        });
+                    }
+                });
+            return hash;
         });
-
-        uModel.findOne({ email: newUser.email })
-            .then(results => {
-                if (results && !results.isNew) {
-                    callBack(null, {"message": "User already exists", status: 403})
-                } else {
-                    newUser.save(function (err) {
-                        if (err) {
-                            callBack(err, {"message": "Failed to create new user", status: 500});
-                        } else {
-                            newUser.password = password;
-                            callBack(err, {"message": "User created. Email being sent to " + newUser.email, user: newUser,
-                                status: 200});
-                        }
-                    });
-                }
-            });
-        return hash;
     });
 }
 

@@ -30,14 +30,13 @@ let userSchema = new mongoose.Schema({
         required: true
     },
     signature_image: {
-        data: Buffer, contentType: String ,
-        required: false
+        type: String,
+        required: true
     }
 });
 
 module.exports = {
     users_prod: mongoose.model('user', userSchema, 'user'),
     users_dev: mongoose.model('users_dev', userSchema, 'users_dev')
-}
-
+};
 
